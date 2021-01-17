@@ -2,8 +2,8 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 # from blog import db
-from blog.models import Post
-from blog.posts.forms import PostForm
+from blog.models import Post, Comment, Categories
+from blog.posts.forms import PostForm, CommentForm
 
 posts = Blueprint("posts", __name__)
 
@@ -12,6 +12,8 @@ posts = Blueprint("posts", __name__)
 @login_required
 def new_post():
     form = PostForm()
+    categories = [(c.category_name) for c in Categories.objects]
+    form.category.choices = categories
     if form.validate_on_submit():
         post = Post(title=form.title.data,
                     content=form.content.data,
@@ -25,21 +27,34 @@ def new_post():
                            legend="New Post")
 
 
-@posts.route("/post/<post_id>")
+@posts.route("/post/<post_id>", methods=["GET", "POST"])
 def post(post_id):
     post = Post.objects().get_or_404(id=post_id)
     likes = len(post.user_likes)
     is_liked = False
-    if current_user.is_authenticated and post.id in current_user.liked_posts:
+    if post.comments is not None:
+        comments = post.comments
+    if current_user.is_authenticated and post in current_user.liked_posts:
         is_liked = True
+    form = CommentForm()
+    if request.method == "POST":
+        comment = Comment(
+            comment=form.comment.data,
+            comment_author=current_user)
+        post.comments.append(comment)
+        post.save()
+        flash("Comment added", "success")
+        return redirect(url_for("posts.post", post_id=post.id))
     return render_template("post.html",
                            title=post.title,
                            post=post,
                            is_liked=is_liked,
-                           likes=likes)
+                           likes=likes,
+                           form=form,
+                           comments=comments)
 
 
-@posts.route("/liked/<post_id>", methods=["GET", "POST"])
+@posts.route("/liked/<post_id>")
 @login_required
 def liked_post(post_id):
     post = Post.objects().get_or_404(id=post_id)

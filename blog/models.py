@@ -14,14 +14,13 @@ class User(db.Document, UserMixin):
         'collection': 'users',
         'queryset_class': BaseQuerySet
         }
-
     username = db.StringField(max_length=20, unique=True, required=True)
     email = db.StringField(max_length=120, unique=True, required=True)
     password = db.StringField(max_length=120)
     image_file = db.StringField(
         default="https://res.cloudinary.com/dmgevdb7w/image\
 /upload/v1610563923/xymcofmhj3le6l9uh8qa.jpg")
-    liked_posts = db.ListField()
+    liked_posts = db.ListField(db.ReferenceField("Post"))
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
@@ -31,18 +30,32 @@ class User(db.Document, UserMixin):
             password).decode("utf8")
 
 
-class Post(db.DynamicDocument):
+class Comment(db.EmbeddedDocument):
+    comment = db.StringField(max_length=200, required=True)
+    comment_author = db.ReferenceField(User)
+
+
+class Categories(db.Document):
+    meta = {
+        'collection': 'categories',
+        'queryset_class': BaseQuerySet
+        }
+    category_name = db.StringField(max_length=30)
+
+
+class Post(db.Document):
     meta = {
         'allow_inheritance': True,
         'collection': 'posts',
         'queryset_class': BaseQuerySet
         }
-
     title = title = db.StringField(max_length=50)
     content = db.StringField()
     date_posted = db.DateTimeField(default=datetime.utcnow)
     author = db.ReferenceField(User)
     user_likes = db.ListField(db.ReferenceField(User))
+    comments = db.ListField(db.EmbeddedDocumentField(Comment))
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
+

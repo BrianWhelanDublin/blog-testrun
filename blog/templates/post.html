@@ -52,6 +52,41 @@ Liked by : {{user.username}}
 </div>
 {% endif %}
 
+{% if comments %}
+{% for comment in comments %}
+<article class="media content-section">
+        <div>
+        <h2 class="article-title">{{ comment.comment }}</h2>
+        <p class="article-content">{{ comment.comment_author.username }}</p>
+    </div>
+</article>
+{% endfor %}
+{% endif %}
+{% if current_user.is_authenticated %}
+   <form method="POST" action="">
+<fieldset>
+   <div class="form-group">
+                    {{ form.comment.label(class="form-control-label") }}
+                    {% if form.comment.errors %}
+                        {{ form.comment(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.comment.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.comment(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mt-2">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+{% else%}
+<p>Must sign in to add comment</p>
+{% endif %}
+
 
 
 {% endblock content %}
