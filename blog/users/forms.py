@@ -1,10 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import (DataRequired, Length,
-                                Email, EqualTo,
-                                ValidationError)
+                                Email, EqualTo, ValidationError)
+from flask_login import current_user
 from blog.models import User
 
 
@@ -63,3 +62,4 @@ class UpdateAccountForm(FlaskForm):
                 email=email.data).first()
             if user is not None:
                 raise ValidationError("Email already used!")
+            

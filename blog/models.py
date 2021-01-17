@@ -10,14 +10,18 @@ def load_user(user_id):
 
 
 class User(db.Document, UserMixin):
-    meta = {'collection': 'users', 'queryset_class': BaseQuerySet}
+    meta = {
+        'collection': 'users',
+        'queryset_class': BaseQuerySet
+        }
 
     username = db.StringField(max_length=20, unique=True, required=True)
     email = db.StringField(max_length=120, unique=True, required=True)
+    password = db.StringField(max_length=120)
     image_file = db.StringField(
         default="https://res.cloudinary.com/dmgevdb7w/image\
-            /upload/v1610563923/xymcofmhj3le6l9uh8qa.jpg")
-    password = db.StringField(max_length=120)
+/upload/v1610563923/xymcofmhj3le6l9uh8qa.jpg")
+    liked_posts = db.ListField()
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
@@ -30,7 +34,7 @@ class User(db.Document, UserMixin):
 class Post(db.DynamicDocument):
     meta = {
         'allow_inheritance': True,
-        'collection': 'post',
+        'collection': 'posts',
         'queryset_class': BaseQuerySet
         }
 
@@ -38,6 +42,7 @@ class Post(db.DynamicDocument):
     content = db.StringField()
     date_posted = db.DateTimeField(default=datetime.utcnow)
     author = db.ReferenceField(User)
+    user_likes = db.ListField(db.ReferenceField(User))
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"

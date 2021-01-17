@@ -1,47 +1,18 @@
-from flask import (render_template, url_for,
-                   flash, redirect, request)
-from blog import app, bcrypt
-import secrets
-import os
-import cloudinary.uploader
-import cloudinary.api
-from blog.forms import (RegistrationForm, LoginForm,
-                        UpdateAccountForm)
+from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask_login import login_user, current_user, logout_user, login_required
+from blog import bcrypt
 from blog.models import User, Post
-from flask_login import (login_user, current_user,
-                         logout_user, login_required)
+from blog.users.forms import (RegistrationForm, LoginForm,
+                              UpdateAccountForm)
+from blog.users.utils import save_picture
+
+users = Blueprint('users', __name__)
 
 
-posts = [
-    {
-        'author': 'Corey Schafer',
-        'title': 'Blog Post 1',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2018'
-    },
-    {
-        'author': 'Jane Doe',
-        'title': 'Blog Post 2',
-        'content': 'Second post content',
-        'date_posted': 'April 21, 2018'
-    }
-]
-
-
-@app.route("/")
-def home():
-    return render_template("home.html", posts=posts)
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html", title="About Page")
-
-
-@app.route("/register", methods=["GET", "POST"])
+@users.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("home"))
+        return redirect(url_for("main.home"))
     form = RegistrationForm()
     if form.validate_on_submit():
         if form.validate_on_submit():
@@ -50,16 +21,16 @@ def register():
             user.set_password(form.password.data)
             user.save()
             flash("User registered! Please Log in", "success")
-        return redirect(url_for("login"))
+        return redirect(url_for("users.login"))
     return render_template("register.html",
                            title="Register",
                            form=form)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@users.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("home"))
+        return redirect(url_for("main.home"))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.objects(
@@ -70,7 +41,7 @@ def login():
             next_page = request.args.get("next")
             flash("Logged in sucsessfuly", "success")
             return redirect(next_page) if next_page \
-                else redirect(url_for('home'))
+                else redirect(url_for('main.home'))
         else:
             flash('Login Unsuccessful. Please check email and password',
                   'danger')
@@ -79,25 +50,13 @@ def login():
                            form=form)
 
 
-@app.route("/logout")
+@users.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for("home"))
+    return redirect(url_for("main.home"))
 
 
-def save_picture(form_picture):
-    response = cloudinary.uploader.upload(form_picture)
-    print(response)
-    url_start = "https://res.cloudinary.com/dmgevdb7w/"
-    image_sizing = "image/upload/w_200,h_200,c_fill,g_face/"
-    version = response["version"]
-    public_id = response["public_id"]
-    image_format = response["format"]
-
-    return f"{url_start}{image_sizing}v{version}/{public_id}.{image_format}"
-
-
-@app.route("/account", methods=["GET", "POST"])
+@users.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
     form = UpdateAccountForm()
@@ -109,10 +68,21 @@ def account():
         current_user.email = form.email.data
         current_user.save()
         flash("your account has been updated!", "success")
-        return redirect(url_for("account"))
+        return redirect(url_for("users.account"))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
     return render_template("account.html",
                            title="Account",
                            form=form)
+
+
+@users.route("/user/<string:username>")
+def user_posts(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.objects(username=username).first_or_404()
+    posts = Post.objects(author=user.id).order_by("-date_posted").paginate(
+        page=page, per_page=2)
+    return render_template("user_posts.html",
+                           posts=posts,
+                           user=user)
