@@ -59,8 +59,14 @@ Liked by : {{user.username}}
         <div>
         <h2 class="article-title">{{ comment.comment }}</h2>
         <p class="article-content">{{ comment.comment_author.username }}</p>
+        <p class="article-content">{{ comment.id }}</p>
+
     </div>
 </article>
+{% if current_user.id == comment.comment_author.id %}
+   <a href="{{ url_for('posts.update_comment', post_id=post.id, comment_id=comment.id)}}">Update comment</a>
+   <a href="#">Delete comment</a>
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if current_user.is_authenticated %}
@@ -84,7 +90,7 @@ Liked by : {{user.username}}
             {% include "helpers/_submit.html" %}
             <!-- <div class="form-group mt-2">
                 {{ form.submit(class="btn btn-outline-info") }}
-            </div> -->
+    
         </form>
 {% else%}
 <p>Must sign in to add comment</p>

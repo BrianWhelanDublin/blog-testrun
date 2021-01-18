@@ -86,3 +86,15 @@ def user_posts(username):
     return render_template("users/user_posts.html",
                            posts=posts,
                            user=user)
+
+
+@users.route("/delete_user", methods=["GET", "POST"])
+@login_required
+def delete_user():
+    user = User.objects(
+            email=current_user.email).first()
+    posts = Post.objects(author=current_user.id)
+    user.delete()
+    posts.delete()
+    flash("Account has been deleted", "success")
+    return redirect(url_for("users.register"))

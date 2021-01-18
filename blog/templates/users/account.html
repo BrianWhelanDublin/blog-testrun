@@ -59,5 +59,25 @@
             {{ form.submit(class="btn btn-outline-info") }}
         </div> -->
     </form>
+         <div>
+                <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal"
+                    data-bs-target="#deleteUserModal">Delete Account</button>
+            </div>
+<!-- Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Delete Post?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form action="{{ url_for('users.delete_user') }}" method="POST"><input class="btn btn-danger" type="submit" value="Delete"></form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock content %}

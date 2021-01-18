@@ -32,17 +32,16 @@ def post(post_id):
     post = Post.objects().get_or_404(id=post_id)
     likes = len(post.user_likes)
     is_liked = False
-    if post.comments is not None:
-        comments = post.comments
+    comments = Comment.objects(post=post)
     if current_user.is_authenticated and post in current_user.liked_posts:
         is_liked = True
     form = CommentForm()
     if request.method == "POST":
         comment = Comment(
             comment=form.comment.data,
-            comment_author=current_user.id)
-        post.comments.append(comment)
-        post.save()
+            comment_author=current_user.id,
+            post=post)
+        comment.save()
         flash("Comment added", "success")
         return redirect(url_for("posts.post", post_id=post.id))
     return render_template("posts/post.html",
@@ -52,6 +51,19 @@ def post(post_id):
                            likes=likes,
                            form=form,
                            comments=comments)
+
+
+@posts.route("/post/<post_id>/<comment_id>/update/comment",
+             methods=["POST"])
+@login_required
+def update_comment(post_id, comment_id):
+    form = CommentForm()
+    post = Post.objects().get_or_404(id=post_id)
+    comment = Comment.objects().get(id=comment_id)
+    comment.comment = form.comment.data
+    comment.save()
+    flash("Comment updated", "success")
+    return redirect(url_for("posts.post", post_id=post.id))
 
 
 @posts.route("/liked/<post_id>")

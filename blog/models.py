@@ -4,11 +4,6 @@ from blog import db, bcrypt, login_manager
 from flask_login import UserMixin
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.objects(pk=user_id).first()
-
-
 class User(db.Document, UserMixin):
     meta = {
         'collection': 'users',
@@ -30,9 +25,15 @@ class User(db.Document, UserMixin):
             password).decode("utf8")
 
 
-class Comment(db.EmbeddedDocument):
+@login_manager.user_loader
+def load_user(user_id):
+    return User.objects(pk=user_id).first()
+
+
+class Comment(db.DynamicDocument):
     comment = db.StringField(max_length=200, required=True)
     comment_author = db.ReferenceField(User)
+    post = db.ReferenceField("Post")
 
 
 class Categories(db.Document):
@@ -54,7 +55,7 @@ class Post(db.Document):
     date_posted = db.DateTimeField(default=datetime.utcnow)
     author = db.ReferenceField(User)
     user_likes = db.ListField(db.ReferenceField(User))
-    comments = db.ListField(db.EmbeddedDocumentField(Comment))
+    comments = db.ListField(db.ReferenceField(Comment))
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"

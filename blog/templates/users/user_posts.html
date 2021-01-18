@@ -3,7 +3,8 @@
 
 <h1 class="mb-3">Post by {{ user.username }} ({{ posts.total }})</h1>
    {% for post in posts.items %}
-         <article class="media content-section">
+    {% include 'helpers/_post.html' %}
+         <!-- <article class="media content-section">
             <img src="{{ post.author.image_file }}" alt="" class="rounded-circle article-img">
           <div class="media-body">
             <div class="article-metadata">
@@ -13,7 +14,7 @@
             <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
             <p class="article-content">{{ post.content }}</p>
           </div>
-        </article>
+        </article> -->
    {% endfor %}
   {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
