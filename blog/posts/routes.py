@@ -21,7 +21,7 @@ def new_post():
         post.save()
         flash("Post has been created!", "success")
         return redirect(url_for("main.home"))
-    return render_template("create_post.html",
+    return render_template("posts/create_post.html",
                            title="New Post",
                            form=form,
                            legend="New Post")
@@ -40,12 +40,12 @@ def post(post_id):
     if request.method == "POST":
         comment = Comment(
             comment=form.comment.data,
-            comment_author=current_user)
+            comment_author=current_user.id)
         post.comments.append(comment)
         post.save()
         flash("Comment added", "success")
         return redirect(url_for("posts.post", post_id=post.id))
-    return render_template("post.html",
+    return render_template("posts/post.html",
                            title=post.title,
                            post=post,
                            is_liked=is_liked,
@@ -83,7 +83,7 @@ def update_post(post_id):
     elif request.method == "GET":
         form.title.data = post.title
         form.content.data = post.content
-    return render_template("create_post.html",
+    return render_template("posts/create_post.html",
                            title="Update Post",
                            form=form,
                            legend="Update Post")

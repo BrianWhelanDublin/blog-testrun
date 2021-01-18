@@ -1,3 +1,4 @@
+{% from "helpers/form_helper.html" import displayField %}
 {% extends "base.html" %}
 {% block content %}
 
@@ -65,7 +66,8 @@ Liked by : {{user.username}}
 {% if current_user.is_authenticated %}
    <form method="POST" action="">
 <fieldset>
-   <div class="form-group">
+     {{ displayField(form.comment) }}
+   <!-- <div class="form-group">
                     {{ form.comment.label(class="form-control-label") }}
                     {% if form.comment.errors %}
                         {{ form.comment(class="form-control form-control-lg is-invalid") }}
@@ -77,11 +79,12 @@ Liked by : {{user.username}}
                     {% else %}
                         {{ form.comment(class="form-control form-control-lg") }}
                     {% endif %}
-                </div>
+                </div> -->
             </fieldset>
-            <div class="form-group mt-2">
+            {% include "helpers/_submit.html" %}
+            <!-- <div class="form-group mt-2">
                 {{ form.submit(class="btn btn-outline-info") }}
-            </div>
+            </div> -->
         </form>
 {% else%}
 <p>Must sign in to add comment</p>

@@ -22,7 +22,7 @@ def register():
             user.save()
             flash("User registered! Please Log in", "success")
         return redirect(url_for("users.login"))
-    return render_template("register.html",
+    return render_template("users/register.html",
                            title="Register",
                            form=form)
 
@@ -45,7 +45,7 @@ def login():
         else:
             flash('Login Unsuccessful. Please check email and password',
                   'danger')
-    return render_template("login.html",
+    return render_template("users/login.html",
                            title="Login",
                            form=form)
 
@@ -72,7 +72,7 @@ def account():
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
-    return render_template("account.html",
+    return render_template("users/account.html",
                            title="Account",
                            form=form)
 
@@ -83,6 +83,6 @@ def user_posts(username):
     user = User.objects(username=username).first_or_404()
     posts = Post.objects(author=user.id).order_by("-date_posted").paginate(
         page=page, per_page=2)
-    return render_template("user_posts.html",
+    return render_template("users/user_posts.html",
                            posts=posts,
                            user=user)
