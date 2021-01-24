@@ -53,7 +53,7 @@ def post(post_id):
                            comments=comments)
 
 
-@posts.route("/post/<post_id>/<comment_id>/update/comment",
+@posts.route("/update/comment/<post_id>/<comment_id>",
              methods=["POST"])
 @login_required
 def update_comment(post_id, comment_id):

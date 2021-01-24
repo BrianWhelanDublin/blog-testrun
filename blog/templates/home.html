@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
    {% for post in posts.items %}
+   {{ loop.index }}
          <article class="media content-section">
             <img src="{{ post.author.image_file }}" alt="" class="rounded-circle article-img">
           <div class="media-body">
